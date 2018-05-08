@@ -3,15 +3,10 @@ typedef ClassInfo = {
 	full: String,
 	functions: Array<{
 		name: String,
-		variants: Array<{
-			arguments: Array<{
-				name: String,
-				type: String
-			}>,
-			returns: Array<{
-				name: String,
-				type: String
-			}>
-		}>
+		variants: Array<VariantInfo>
+	}>,
+	methods: Array<{
+		name: String,
+		variants: Array<VariantInfo>
 	}>
 }

@@ -1,14 +1,17 @@
 import haxe.Http;
 import haxe.Json;
 
-typedef ArgInfo = {
-	name: String,
-	type: String
-}
-
-typedef VariantInfo = {
-	arguments: Array<ArgInfo>,
-	returns: Array<ArgInfo>
+typedef LovrVariantInfo = {
+	arguments: Array<{
+		name: String,
+		type: String,
+		description: String
+	}>,
+	returns: Array<{
+		name: String,
+		type: String,
+		description: String
+	}>
 }
 
 typedef LovrApi = {
@@ -28,7 +31,22 @@ typedef LovrApi = {
 			name: String,
 			description: String
 		}>,
-		objects: {},
+		objects: Array<{
+			summary: String,
+			module: String,
+			methods: Array<{
+				summary: String,
+				module: String,
+				variants: Array<LovrVariantInfo>,
+				key: String,
+				name: String,
+				description: String
+			}>,
+			constructors: Array<String>,
+			key: String,
+			name: String,
+			description: String
+		}>,
 		examples: Array<{
 			code: String,
 			description: String
@@ -44,17 +62,7 @@ typedef LovrApi = {
 		functions: Array<{
 			summary: String,
 			module: String,
-			variants: Array<{
-				arguments: Array<{
-					type: String,
-					name: String
-				}>,
-				returns: Array<{
-					type: String,
-					name: String,
-					description: String
-				}>
-			}>,
+			variants: Array<LovrVariantInfo>,
 			tag: String,
 			name: String,
 			key: String,
@@ -67,7 +75,7 @@ typedef LovrApi = {
 
 typedef ApiInfo = {
 	modules: Array<ClassInfo>,
-	objects: Array<Int>,
+	types: Map<String, ObjectInfo>,
 	enums: Array<Int>
 }
 
@@ -97,39 +105,65 @@ class Gen {
 		return data;
 	}
 
+	static function convert_variants(base: Array<LovrVariantInfo>): Array<VariantInfo> {
+		var variants: Array<VariantInfo> = [];
+		for (v in base) {
+			var variant: VariantInfo = {
+				arguments: [],
+				returns: []
+			}
+			for (arg in v.arguments) {
+				variant.arguments.push({
+					name: arg.name,
+					type: arg.type
+				});
+			}
+			for (ret in v.returns) {
+				variant.returns.push({
+					name: ret.name,
+					type: ret.type
+				});
+			}
+			variants.push(variant);
+		}
+		return variants;
+	}
+
 	static function convert(parsed: LovrApi): ApiInfo {
 		var classes: Array<ClassInfo> = [];
+		var types = new Map<String, ObjectInfo>();
+
 		for (m in parsed.modules) {
 			var classinfo = {
-				name: m.name,
+				name: m.name.charAt(0).toUpperCase() + m.name.substr(1),
 				full: m.key,
-				functions: []
+				functions: [],
+				methods: []
+			}
+			for (o in m.objects) {
+				var objdef = {
+					name: o.name,
+					methods: []
+				}
+				for (method in o.methods) {
+					objdef.methods.push({
+						name: method.name,
+						variants: convert_variants(method.variants)
+					});
+				}
+				types[o.name] = objdef;
+				classes.push({
+					name: o.name,
+					full: o.key,
+					functions: [],
+					methods: objdef.methods
+				});
 			}
 			for (f in m.functions) {
-				var fn = {
+				classinfo.functions.push({
 					name: f.name,
-					variants: []
-				}
-				for (v in f.variants) {
-					var variant: VariantInfo = {
-						arguments: [],
-						returns: []
-					}
-					for (arg in v.arguments) {
-						variant.arguments.push({
-							name: arg.name,
-							type: arg.type
-						});
-					}
-					for (ret in v.returns) {
-						variant.returns.push({
-							name: ret.name,
-							type: ret.type
-						});
-					}
-					fn.variants.push(variant);
-				}
-				classinfo.functions.push(fn);
+					variants: convert_variants(f.variants)
+				});
 			}
 			classes.push(classinfo);
 		}
@@ -138,7 +172,7 @@ class Gen {
 		}
 		return {
 			modules: classes,
-			objects: [],
+			types: types,
 			enums: [],
 		};
 	}
@@ -152,7 +186,7 @@ class Gen {
 		var info = convert(parsed);
 		var tree = [];
 		for (c in info.modules) {
-			var generated = GenClass.gen(c);
+			var generated = GenClass.gen(c, info.types);
 			tree.push(generated.path);
 			var output = sys.io.File.write(generated.path);
 			var dir = haxe.io.Path.directory(generated.path);
