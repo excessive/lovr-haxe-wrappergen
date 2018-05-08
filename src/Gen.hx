@@ -134,6 +134,9 @@ class Gen {
 		var types = new Map<String, ObjectInfo>();
 
 		for (m in parsed.modules) {
+			if (m.external) {
+				continue;
+			}
 			var classinfo = {
 				name: m.name.charAt(0).toUpperCase() + m.name.substr(1),
 				full: m.key,
