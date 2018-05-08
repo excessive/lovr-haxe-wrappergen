@@ -82,6 +82,9 @@ typedef ApiInfo = {
 class Gen {
 	static function feed(filename: String): String {
 		var data: String;
+		if (!sys.FileSystem.exists("lovr")) {
+			sys.FileSystem.createDirectory("lovr");
+		}
 		if (sys.FileSystem.exists(filename)) {
 			var input = sys.io.File.read(filename);
 			if (input == null) {
