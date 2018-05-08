@@ -60,7 +60,26 @@ class GenClass {
 		var hx = 'package lovr;\n';
 		hx += header;
 		hx += '@:native("${c.full}")\n';
-		hx += 'extern class ${c.name} {\n';
+		var ext = "";
+		if (c.extend != null) {
+			ext = 'extends ${c.extend} ';
+		}
+		hx += 'extern class ${c.name} ${ext}{\n';
+		for (v in c.vars) {
+			var ret = "Void";
+			if (v.type.returns.length > 0) {
+				ret = convert_type(types, v.type.returns[0].type);
+			}
+			var args = [ "Void" ];
+			if (v.type.arguments.length > 0) {
+				args = [];
+				for (arg in v.type.arguments) {
+					args.push(convert_type(types, arg.type));
+				}
+			}
+			var sig = '(${args.join("->")})->$ret';
+			hx += '\tstatic var ${v.name}: ${sig};\n';
+		}
 		for (f in c.functions) {
 			hx += emit_fn(types, f, true);
 		}

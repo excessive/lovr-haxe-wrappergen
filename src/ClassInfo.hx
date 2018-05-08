@@ -1,6 +1,7 @@
 typedef ClassInfo = {
 	name: String,
 	full: String,
+	extend: String,
 	functions: Array<{
 		name: String,
 		variants: Array<VariantInfo>
@@ -8,5 +9,9 @@ typedef ClassInfo = {
 	methods: Array<{
 		name: String,
 		variants: Array<VariantInfo>
+	}>,
+	vars: Array<{
+		name: String,
+		type: VariantInfo
 	}>
 }

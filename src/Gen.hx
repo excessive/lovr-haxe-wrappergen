@@ -16,7 +16,8 @@ typedef LovrVariantInfo = {
 
 typedef LovrApi = {
 	callbacks: Array<{
-
+		name: String,
+		variants: Array<VariantInfo>
 	}>,
 	modules: Array<{
 		summary: String,
@@ -144,12 +145,19 @@ class Gen {
 				name: m.name.charAt(0).toUpperCase() + m.name.substr(1),
 				full: m.key,
 				functions: [],
-				methods: []
+				methods: [],
+				vars: [],
+				extend: null
 			}
 			for (o in m.objects) {
 				var objdef = {
 					name: o.name,
 					methods: []
+				}
+				// haxe doesn't let you use keywords as field names naturally
+				var ext: String = null;
+				if (Reflect.hasField(o, "extends")) {
+					ext = Reflect.getProperty(o, "extends");
 				}
 				for (method in o.methods) {
 					objdef.methods.push({
@@ -161,7 +169,9 @@ class Gen {
 				classes.push({
 					name: o.name,
 					full: o.key,
+					extend: ext,
 					functions: [],
+					vars: [],
 					methods: objdef.methods
 				});
 			}
@@ -173,8 +183,12 @@ class Gen {
 			}
 			classes.push(classinfo);
 		}
+		var lovr = classes.filter((info) -> return info.name == "Lovr")[0];
 		for (cb in parsed.callbacks) {
-			//
+			lovr.vars.push({
+				name: cb.name,
+				type: cb.variants[0]
+			});
 		}
 		return {
 			modules: classes,
