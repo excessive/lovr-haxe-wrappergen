@@ -133,6 +133,9 @@ class Gen {
 			}
 			classes.push(classinfo);
 		}
+		for (cb in parsed.callbacks) {
+			//
+		}
 		return {
 			modules: classes,
 			objects: [],
