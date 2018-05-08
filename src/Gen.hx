@@ -77,7 +77,7 @@ typedef LovrApi = {
 typedef ApiInfo = {
 	modules: Array<ClassInfo>,
 	types: Map<String, ObjectInfo>,
-	enums: Array<Int>
+	enums: Array<EnumInfo>
 }
 
 class Gen {
@@ -135,11 +135,27 @@ class Gen {
 
 	static function convert(parsed: LovrApi): ApiInfo {
 		var classes: Array<ClassInfo> = [];
+		var enums: Array<EnumInfo> = [];
 		var types = new Map<String, ObjectInfo>();
 
 		for (m in parsed.modules) {
 			if (m.external) {
 				continue;
+			}
+			for (e in m.enums) {
+				var _e: EnumInfo = {
+					module: m.name,
+					name: e.name,
+					values: []
+				}
+				for (v in e.values) {
+					_e.values.push(v.name);
+				}
+				enums.push(_e);
+				types[_e.name] = {
+					name: _e.name,
+					methods: []
+				}
 			}
 			var classinfo = {
 				name: m.name.charAt(0).toUpperCase() + m.name.substr(1),
@@ -193,8 +209,24 @@ class Gen {
 		return {
 			modules: classes,
 			types: types,
-			enums: [],
+			enums: enums
 		};
+	}
+
+	static function write(path: String, contents: String) {
+		var output = sys.io.File.write(path);
+		var dir = haxe.io.Path.directory(path);
+		if (!sys.FileSystem.isDirectory(dir)) {
+			try {
+				sys.FileSystem.createDirectory(dir);
+				Sys.println('created $dir');
+			}
+			catch (e: Dynamic) {
+				trace(e);
+			}
+		}
+		output.writeString(contents);
+		output.close();
 	}
 
 	static function main() {
@@ -205,23 +237,17 @@ class Gen {
 		var parsed: LovrApi = Json.parse(data);
 		var info = convert(parsed);
 		var tree = [];
+		for (e in info.enums) {
+			var generated = GenEnum.gen(e);
+			tree.push(generated.path);
+			write(generated.path, generated.contents);
+			Sys.println('generated enum ${generated.path}');
+		}
 		for (c in info.modules) {
 			var generated = GenClass.gen(c, info.types);
 			tree.push(generated.path);
-			var output = sys.io.File.write(generated.path);
-			var dir = haxe.io.Path.directory(generated.path);
-			if (!sys.FileSystem.isDirectory(dir)) {
-				try {
-					sys.FileSystem.createDirectory(dir);
-					Sys.println('created $dir');
-				}
-				catch (e: Dynamic) {
-					trace(e);
-				}
-			}
-			output.writeString(generated.contents);
-			output.close();
-			Sys.println('generated ${generated.path}');
+			write(generated.path, generated.contents);
+			Sys.println('generated class ${generated.path}');
 		}
 	}
 }
