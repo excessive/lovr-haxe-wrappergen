@@ -4,6 +4,7 @@ class GenClass {
 			return sig;
 		}
 		return switch (sig) {
+			case "function": "Void->Void"; // no info in docs about function arguments.
 			case "boolean": "Bool";
 			case "string": "String";
 			case "number": "Float";
