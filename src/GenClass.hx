@@ -18,7 +18,7 @@ class GenClass {
 	static function emit_fn(types, f: {variants: Array<VariantInfo>, name: String}, is_static: Bool) {
 		var hx = "";
 		var ret = "Void";
-		var first = true;
+		var sigs = [];
 		for (v in f.variants) {
 			if (v.returns.length > 1) {
 				// TODO: multiret support
@@ -44,14 +44,15 @@ class GenClass {
 					args += ", ";
 				}
 			}
-			if (first) {
-				hx += '\t${is_static ? "static " : ""}function ${f.name}(${args}): ${ret} {}\n';
-			}
-			else {
-				// hx += "@:overload(function (color:Table<Dynamic,Dynamic>, stencilvalue: Int, depthvalue: Float) : Void {})"
-			}
-			first = false;
+			sigs.push('(${args}): ${ret} {}');
 		}
+
+		if (sigs.length > 1) {
+			for (i in 1...sigs.length) {
+				hx += '\t@:overload(function ${sigs[i]})\n';
+			}
+		}
+		hx += '\t${is_static ? "static " : ""}function ${f.name}${sigs[0]}\n';
 
 		return hx;
 	}
