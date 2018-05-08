@@ -1,6 +1,15 @@
 import haxe.Http;
 import haxe.Json;
 
+typedef ArgInfo = {
+	name: String,
+	type: String
+}
+
+typedef VariantInfo = {
+	arguments: Array<ArgInfo>,
+	returns: Array<ArgInfo>
+}
 
 typedef LovrApi = {
 	callbacks: Array<{
@@ -36,7 +45,10 @@ typedef LovrApi = {
 			summary: String,
 			module: String,
 			variants: Array<{
-				arguments: Array<{}>,
+				arguments: Array<{
+					type: String,
+					name: String
+				}>,
 				returns: Array<{
 					type: String,
 					name: String,
@@ -93,15 +105,15 @@ class Gen {
 					variants: []
 				}
 				for (v in f.variants) {
-					var variant = {
+					var variant: VariantInfo = {
 						arguments: [],
 						returns: []
 					}
 					for (arg in v.arguments) {
-						// variant.arguments.push({
-						// 	name: arg.name,
-						// 	type: arg.type
-						// });
+						variant.arguments.push({
+							name: arg.name,
+							type: arg.type
+						});
 					}
 					for (ret in v.returns) {
 						variant.returns.push({

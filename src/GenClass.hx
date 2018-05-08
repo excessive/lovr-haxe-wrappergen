@@ -1,4 +1,12 @@
 class GenClass {
+	static function convert_type(sig: String): String {
+		return switch (sig) {
+			case "number": "Float";
+			case "table": "Dynamic";
+			default: "Dynamic";
+		}
+	}
+
 	public static function gen(c: ClassInfo): { path: String, contents: String } {
 		var hx = 'package lovr.${c.name};\n\n';
 		var cname = c.name.charAt(0).toUpperCase() + c.name.substr(1);
@@ -18,17 +26,14 @@ class GenClass {
 					continue;
 				}
 				if (v.returns.length == 1) {
-					ret = switch (v.returns[0].type) {
-						case "number": "Float";
-						default: "Void";
-					}
+					ret = convert_type(v.returns[0].type);
 				}
 				var args = "";
 				for (i in 0...v.arguments.length) {
 					var arg = v.arguments[i];
-					args += arg;
-					if (i < v.arguments.length) {
-						args += ",";
+					args += '${arg.name}: ${convert_type(arg.type)}';
+					if (i < v.arguments.length-1) {
+						args += ", ";
 					}
 				}
 				hx += '\tfunction ${f.name}(${args}): ${ret} {}\n';
