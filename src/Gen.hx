@@ -65,6 +65,12 @@ typedef LovrApi = {
 	}>
 }
 
+typedef ApiInfo = {
+	modules: Array<ClassInfo>,
+	objects: Array<Int>,
+	enums: Array<Int>
+}
+
 class Gen {
 	static function feed(filename: String): String {
 		var data: String;
@@ -91,7 +97,7 @@ class Gen {
 		return data;
 	}
 
-	static function convert(parsed: LovrApi): Array<ClassInfo> {
+	static function convert(parsed: LovrApi): ApiInfo {
 		var classes: Array<ClassInfo> = [];
 		for (m in parsed.modules) {
 			var classinfo = {
@@ -127,7 +133,11 @@ class Gen {
 			}
 			classes.push(classinfo);
 		}
-		return classes;
+		return {
+			modules: classes,
+			objects: [],
+			enums: [],
+		};
 	}
 
 	static function main() {
@@ -136,16 +146,25 @@ class Gen {
 			return;
 		}
 		var parsed: LovrApi = Json.parse(data);
-		var classes = convert(parsed);
+		var info = convert(parsed);
 		var tree = [];
-		for (c in classes) {
+		for (c in info.modules) {
 			var generated = GenClass.gen(c);
 			tree.push(generated.path);
-			trace(generated.path);
-			trace(generated.contents);
-		}
-		for (path in tree) {
-			trace(path);
+			var output = sys.io.File.write(generated.path);
+			var dir = haxe.io.Path.directory(generated.path);
+			if (!sys.FileSystem.isDirectory(dir)) {
+				try {
+					sys.FileSystem.createDirectory(dir);
+					Sys.println('created $dir');
+				}
+				catch (e: Dynamic) {
+					trace(e);
+				}
+			}
+			output.writeString(generated.contents);
+			output.close();
+			Sys.println('generated ${generated.path}');
 		}
 	}
 }

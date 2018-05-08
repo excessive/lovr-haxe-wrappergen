@@ -17,11 +17,6 @@ class GenClass {
 			var ret = "Void";
 			var first = true;
 			for (v in f.variants) {
-				if (!first) {
-					// hx += "@:overload(function (color:Table<Dynamic,Dynamic>, stencilvalue: Int, depthvalue: Float) : Void {})"
-				}
-				first = false;
-
 				if (v.returns.length > 1) {
 					continue;
 				}
@@ -36,7 +31,13 @@ class GenClass {
 						args += ", ";
 					}
 				}
-				hx += '\tfunction ${f.name}(${args}): ${ret} {}\n';
+				if (first) {
+					hx += '\tfunction ${f.name}(${args}): ${ret} {}\n';
+				}
+				else {
+					// hx += "@:overload(function (color:Table<Dynamic,Dynamic>, stencilvalue: Int, depthvalue: Float) : Void {})"
+				}
+				first = false;
 			}
 		}
 		hx += '}\n';
