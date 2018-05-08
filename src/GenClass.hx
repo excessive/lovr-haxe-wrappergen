@@ -35,6 +35,9 @@ class GenClass {
 			var args = "";
 			for (i in 0...v.arguments.length) {
 				var arg = v.arguments[i];
+				if (arg.optional) {
+					args += "?";
+				}
 				if (arg.name == "...") {
 					args += 'args: haxe.extern.Rest<${convert_type(types, arg.type)}>';
 				}

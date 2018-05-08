@@ -119,13 +119,15 @@ class Gen {
 			for (arg in v.arguments) {
 				variant.arguments.push({
 					name: arg.name,
-					type: arg.type
+					type: arg.type,
+					optional: Reflect.hasField(arg, "default")
 				});
 			}
 			for (ret in v.returns) {
 				variant.returns.push({
 					name: ret.name,
-					type: ret.type
+					type: ret.type,
+					optional: false
 				});
 			}
 			variants.push(variant);

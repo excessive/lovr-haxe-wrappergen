@@ -1,4 +1,5 @@
 typedef ArgInfo = {
 	name: String,
-	type: String
+	type: String,
+	optional: Bool
 }
