@@ -4,6 +4,7 @@ class GenClass {
 			return sig;
 		}
 		return switch (sig) {
+			case "boolean": "Bool";
 			case "string": "String";
 			case "number": "Float";
 			case "table": "lua.Table<Dynamic, Dynamic>";
