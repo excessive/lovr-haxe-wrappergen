@@ -102,12 +102,12 @@ class Gen {
 		for (m in parsed.modules) {
 			var classinfo = {
 				name: m.name,
+				full: m.key,
 				functions: []
 			}
 			for (f in m.functions) {
 				var fn = {
 					name: f.name,
-					full: f.key,
 					variants: []
 				}
 				for (v in f.variants) {

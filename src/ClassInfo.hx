@@ -1,8 +1,8 @@
 typedef ClassInfo = {
 	name: String,
+	full: String,
 	functions: Array<{
 		name: String,
-		full: String,
 		variants: Array<{
 			arguments: Array<{
 				name: String,

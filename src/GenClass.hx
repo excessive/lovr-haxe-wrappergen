@@ -15,10 +15,9 @@ class GenClass {
 		var hx = 'package lovr;\n';
 		hx += header;
 		var cname = c.name.charAt(0).toUpperCase() + c.name.substr(1);
+		hx += '@:native("${c.full}")\n';
 		hx += 'extern class ${cname} {\n';
 		for (f in c.functions) {
-			hx += '\t@:native("${f.full}")\n';
-
 			var ret = "Void";
 			var first = true;
 			for (v in f.variants) {
@@ -47,7 +46,7 @@ class GenClass {
 					}
 				}
 				if (first) {
-					hx += '\tfunction ${f.name}(${args}): ${ret} {}\n';
+					hx += '\tstatic function ${f.name}(${args}): ${ret} {}\n';
 				}
 				else {
 					// hx += "@:overload(function (color:Table<Dynamic,Dynamic>, stencilvalue: Int, depthvalue: Float) : Void {})"
