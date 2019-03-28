@@ -61,15 +61,13 @@ class GenClass {
 					args += ", ";
 				}
 			}
-			sigs.push('(${args}): ${ret} {}');
+			sigs.push('(${args}): ${ret}');
 		}
 
-		if (sigs.length > 1) {
-			for (i in 1...sigs.length) {
-				hx += '\t@:overload(function ${sigs[i]})\n';
-			}
+		for (i in 1...sigs.length) {
+			hx += '\t@:overload(function ${sigs[i]} {})\n';
 		}
-		hx += '\t${is_static ? "static " : ""}function ${f.name}${sigs[0]}\n';
+		hx += '\t${is_static ? "static " : ""}function ${f.name}${sigs[0]};\n';
 
 		return hx;
 	}
@@ -98,7 +96,7 @@ class GenClass {
 					args.push(convert_type(types, arg.type));
 				}
 			}
-			var sig = '(${args.join("->")})->$ret';
+			var sig = '${args.join("->")}->$ret';
 			hx += '\tstatic var ${v.name}: ${sig};\n';
 		}
 		for (f in c.functions) {

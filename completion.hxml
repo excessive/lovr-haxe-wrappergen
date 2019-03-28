@@ -1,4 +1,6 @@
 -cp src
+-D display
+-D lua
 -main Gen
 -neko gen.neko
 -cmd "neko gen.neko"

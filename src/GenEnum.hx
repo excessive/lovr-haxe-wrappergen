@@ -1,6 +1,10 @@
 class GenEnum {
-	static function capitalize(s: String) {
-		return s.charAt(0).toUpperCase() + s.substr(1);
+	static function mangle(s: String) {
+		var prefix = "";
+		if (Std.parseInt(s.charAt(0)) != null) {
+			prefix = "_";
+		}
+		return prefix + s.charAt(0).toUpperCase() + s.substr(1);
 	}
 
 	public static function gen(e: EnumInfo): { path: String, contents: String } {
@@ -9,7 +13,7 @@ class GenEnum {
 		hx += 'enum abstract ${e.name}(String) {\n';
 
 		for (v in e.values) {
-			hx += '\tvar ${capitalize(v)} = "${v}";\n';
+			hx += '\tvar ${mangle(v)} = "${v}";\n';
 		}
 
 		hx += '}\n';
