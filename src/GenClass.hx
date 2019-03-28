@@ -69,7 +69,9 @@ class GenClass {
 		if (c.extend != null) {
 			ext = 'extends ${c.extend} ';
 		}
-		hx += 'extern class ${c.name} ${ext}{\n';
+
+		var classname: String = c.name.toUpperCase().substring(0, 1) + c.name.substring(1, c.name.length);
+		hx += 'extern class ${classname} ${ext}{\n';
 		for (v in c.vars) {
 			var ret = "Void";
 			if (v.type.returns.length > 0) {
@@ -94,7 +96,7 @@ class GenClass {
 		hx += '}\n';
 
 		return {
-			path: 'lovr/${c.name}.hx',
+			path: 'lovr/${classname}.hx',
 			contents: hx
 		}
 	}
