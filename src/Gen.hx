@@ -96,7 +96,7 @@ class Gen {
 			data = input.readAll().toString();
 		}
 		else {
-			data = Http.requestUrl("https://lovr.org/api/data");
+			data = Http.requestUrl("https://lovr.org/api/data/master");
 			if (data == null) {
 				Sys.println("unable to download lovr api");
 				Sys.exit(1);
@@ -246,10 +246,15 @@ class Gen {
 			Sys.println('generated enum ${generated.path}');
 		}
 		for (c in info.modules) {
-			var generated = GenClass.gen(c, info.types);
-			tree.push(generated.path);
-			write(generated.path, generated.contents);
-			Sys.println('generated class ${generated.path}');
+			try {
+				var generated = GenClass.gen(c, info.types);
+				tree.push(generated.path);
+				write(generated.path, generated.contents);
+				Sys.println('generated class ${generated.path}');
+			}
+			catch (e: String) {
+				trace(e);
+			}
 		}
 	}
 }
