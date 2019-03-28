@@ -1,3 +1,5 @@
 {
-	"haxe.displayConfigurations": [ "completion.hxml" ]
+	"haxe.displayConfigurations": [
+		["completion.hxml"]
+	]
 }
