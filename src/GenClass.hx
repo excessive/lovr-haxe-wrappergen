@@ -1,7 +1,17 @@
 class GenClass {
+	static function fix_caps(str: Null<String>) {
+		if (str == null) {
+			return str;
+		}
+		return str.toUpperCase().substring(0, 1) + str.substring(1, str.length);
+	}
+
 	static function convert_type(types: Map<String, ObjectInfo>, sig: String): String {
+		if (sig == null) {
+			throw "NO!!";
+		}
 		if (types.exists(sig)) {
-			return sig;
+			return fix_caps(sig);
 		}
 		return switch (sig) {
 			case "function": "Void->Void"; // no info in docs about function arguments.
@@ -42,6 +52,9 @@ class GenClass {
 					args += 'args: haxe.extern.Rest<${convert_type(types, arg.type)}>';
 				}
 				else {
+					if (arg.type == null) {
+						arg.type = "Dynamic";
+					}
 					args += '${arg.name}: ${convert_type(types, arg.type)}';
 				}
 				if (i < v.arguments.length-1) {
@@ -64,14 +77,15 @@ class GenClass {
 	public static function gen(c: ClassInfo, types: Map<String, ObjectInfo>): { path: String, contents: String } {
 		var hx = 'package lovr;\n';
 		hx += header;
+
 		hx += '@:native("${c.full}")\n';
 		var ext = "";
 		if (c.extend != null) {
 			ext = 'extends ${c.extend} ';
 		}
 
-		var classname: String = c.name.toUpperCase().substring(0, 1) + c.name.substring(1, c.name.length);
-		hx += 'extern class ${classname} ${ext}{\n';
+		c.name = fix_caps(c.name);
+		hx += 'extern class ${c.name} ${ext}{\n';
 		for (v in c.vars) {
 			var ret = "Void";
 			if (v.type.returns.length > 0) {
@@ -88,15 +102,23 @@ class GenClass {
 			hx += '\tstatic var ${v.name}: ${sig};\n';
 		}
 		for (f in c.functions) {
+			if (f.name.lastIndexOf("__") >= 0) {
+				continue;
+			}
 			hx += emit_fn(types, f, true);
 		}
 		for (f in c.methods) {
+			// skip metamethods
+			if (f.name.lastIndexOf("__") >= 0) {
+				// trace(f.name);
+				continue;
+			}
 			hx += emit_fn(types, f, false);
 		}
 		hx += '}\n';
 
 		return {
-			path: 'lovr/${classname}.hx',
+			path: 'lovr/${c.name}.hx',
 			contents: hx
 		}
 	}

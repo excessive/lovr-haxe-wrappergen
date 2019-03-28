@@ -246,15 +246,10 @@ class Gen {
 			Sys.println('generated enum ${generated.path}');
 		}
 		for (c in info.modules) {
-			try {
-				var generated = GenClass.gen(c, info.types);
-				tree.push(generated.path);
-				write(generated.path, generated.contents);
-				Sys.println('generated class ${generated.path}');
-			}
-			catch (e: String) {
-				trace(e);
-			}
+			var generated = GenClass.gen(c, info.types);
+			tree.push(generated.path);
+			write(generated.path, generated.contents);
+			Sys.println('generated class ${generated.path}');
 		}
 	}
 }
